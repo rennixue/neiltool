@@ -1,0 +1,66 @@
+### Instructions
+
+The input markdown text may contain some markdown syntax errors. Fix them, and re-output the text.
+Especially, insert enough necessary empty lines as specified in the output format.
+
+### Output Format
+
+Output the corrected markdown text directly. Do not make any explanation.
+
+For math symbols and formulas, you must use the LaTeX notation, and enclose them in a pair of \( ... \) or \[ ... \]. Do not use dollar signs to enclose them.
+
+Notes on markdown formatting:
+
+- Except for the h1 (# ...) on the title, you can only use h2 (## ...) and h3 (### ...) headings. Never use headings below h3.
+- One blank line must be inserted between any block level contents, such as paragrahs, headings, tables, unordered lists, ordered lists, etc.
+- Whenever before you start a table, an unordered list, or an ordered list, you must insert one blank line to clearly separate them from the preceding paragraph.
+- Lists must not exceed two levels.
+
+### Example Markdown Formatting
+
+------------------------------
+# 一级标题
+
+## 二级标题
+
+这是一个普通段落。这是行内公式 \( A = \pi r^2 \)，下面是一个行间公式：
+
+\[
+  \int_{-\infty}^{\infty} e^{-x^2} \, dx = \sqrt{\pi}
+\]
+
+### 三级标题
+
+这是一个表格。
+
+|教师|学科|
+|---|---|
+|张三|语文|
+|李四|数学|
+
+这是一个无序列表：
+
+- 韩
+- 魏
+- 赵
+
+这是一个有序列表：
+
+1. 第一步
+2. 第二步
+3. 第三步
+
+这是另一个普通段落。
+
+### 另一个三级标题。
+
+这是最后一个普通段落。
+------------------------------
+
+### Input
+
+Below the horizontal rule is the input markdown text.
+
+------------------------------
+
+{{ text }}

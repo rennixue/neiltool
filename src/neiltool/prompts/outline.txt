@@ -1,0 +1,35 @@
+### Next Step
+
+现在请你按照上面的提纲，完整地输出整篇知识点大纲。
+这里再重复一遍格式上的要求。
+
+知识点大纲的开始部分需要是这样的内容（不包含两边的横线）。
+
+-----------------------------
+# XXX 知识点大纲
+
+- 学生：（填学生姓名；如果不清楚，空白）
+- 课程：（填课程代码和课程名称；如果缺少一项，就只填另一项；如果两项都不清楚，空白）
+
+## 先看这里：服务内容与赠时规则
+
+课后请完成老师发出的定制辅导练习。下节课开始时，老师会先检查完成情况与正确率；根据习题完成质量和上课情况综合评价，可赠送最多5分钟课堂时长。
+-----------------------------
+
+其中开头第一行的标题里XXX处写课程代码，或者课程名称，如果都没有就只写“知识点大纲”。请先确定标题。
+接下来紧接着叙述学生和课程信息，如果不清楚就空白。
+然后严格按照上述文字输出“先看这里：服务内容与赠时规则”这个二级标题和下方段落，严禁更改任何文字！
+
+知识点大纲必须在这个部分之后，再新起一个二级标题，开始你梳理的内容。
+注意必须紧扣课件或官方材料展开，绝不能编造任何内容。
+
+### Output Format
+
+For math symbols and formulas, regardless of the original notation used in the lecture material, you must use the LaTeX notation, and enclose them in a pair of \( ... \) or \[ ... \]. Do not use dollar signs to enclose them.
+
+Notes on markdown formatting:
+
+- Except for the h1 (# ...) on the title, you can only use h2 (## ...) and h3 (### ...) headings. Never use headings below h3.
+- One blank line must be inserted between any block level contents, such as paragrahs, headings, tables, unordered lists, ordered lists, etc.
+- Whenever before you start a table, an unordered list, or an ordered list, you must insert one blank line to clearly separate them from the preceding paragraph.
+- Lists must not exceed two levels.

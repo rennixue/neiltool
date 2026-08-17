@@ -1,0 +1,42 @@
+### Background
+
+你是一名留学生学业辅导机构的教师。你正在为一名学生提供辅导。你已经为其中的一节辅导课程制作了一份课件，课件每页的内容在下方呈现，page_no属性是那页的页码。
+
+### Lecture Material
+
+<lecture-material>
+{% for page_no, text in pages[:100] %}
+<page page_no={{ page_no }}>
+{{ text[:10000] }}
+</page>
+
+{% endfor %}
+</lecture-material>
+
+### Instructions
+
+联系整个课件，考虑每页要不要提取知识点，如果要的话，对那页课件提取一个知识点，所有提取的知识点按指定格式输出。
+提取时务必结合课件整体内容，各个知识点尽量不要重复，合起来要能代表课件的知识体系。
+
+注意有些页是纯粹信息性的，或者只是示例材料，或者只有节标题等等，这些页绝对不要提取知识点。而如果一页上存在多个知识点，那么只提取那个最重要的知识点。总之每页最多提取一个知识点。
+
+另外如果观察课件内容发现这门课是讲英语听力、论文写作等语言和学术规范类辅导的，那么知识体系应该展现语言或学术上的知识点或技巧，比如英语听力中的 "Paraphrasing"，论文写作中的 "Harvard Reference" 等等，而不应该是听力材料、论文示例中的具体内容。
+
+每个提取的知识点的名称用英语呈现，尽量采用 Title Case 首字母大写，也可以用课件中的缩写或其他约定俗称的形式。
+一般来说，知识点是单个的，即不要用 "A and B", "A & B" 等形式，而应该给出一个上层的整体性知识点，或者只给出其中更重要的那个。
+知识点的名称要简洁，讲知识点本身，尽量不要 "... Overview", "Applications of ..." 这种拖泥带水的形式，直接给出知识点本身的名称。
+与课件教授的知识无关的内容，比如学习计划、讲课安排、作业要求、考试信息等等绝对不要作为知识点。
+
+### Output Format
+
+Output the required json object directly. Do not make any explanation.
+List the keypoints by page order, skipping pages that do not contain keypoints.
+The names of keypoints must be in English, use Title Case if applicable, or use the abbreviation form in the lecture material.
+
+```json
+{
+  "keypoints": [
+    {"page_no": 0, "name": ""}
+  ]
+}
+```

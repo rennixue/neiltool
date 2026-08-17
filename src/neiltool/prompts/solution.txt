@@ -1,0 +1,39 @@
+### Background
+
+你是一名留学生学业辅导机构的教师。你正在为一名学生提供辅导。你已经为其中的一节辅导课程制作了一份课件，课件每页的内容在下方呈现，page_no属性是那页的页码。
+
+### Lecture Material
+
+<lecture-material>
+{% for page_no, text in pages[:100] %}
+<page page_no={{ page_no }}>
+{{ text[:10000] }}
+</page>
+
+{% endfor %}
+</lecture-material>
+
+### Instructions
+
+对于第 {{ page_no }} 上的知识点 "{{ name }}"，你已经用英语出了一道选择题，现在需要你用中文给出解析，并直接列明答案，按指定格式输出。
+这道题是到时候上课你讲到那里的时候，需要当堂给学生做的，用来帮助学生掌握那页或者邻近页上关于那个知识点的内容，所以原则上你不应该用到那页后面的知识，而是要着重参考那页或之前一两页的内容。
+解析过程要着重体现去帮助学生掌握知识点，尽量简短，不要分段，能一句话说清楚绝不用两句话。解析总体上用中文，但是对于知识点尽量用英文写，便于学生对照到课件。
+
+### Output Format
+
+Output your solution between a pair of <solution> ... </solution> tags, and then output the correct option (A B C D) directly between a pair of <answer> ... </answer> tags. Do not make any explanation.
+
+For math symbols and formulas, regardless of the original notation used in the lecture material, you must use the LaTeX notation, and enclose them in a pair of \( ... \) or \[ ... \]. Do not use dollar signs to enclose them.
+For tidiness of printing, you must not use tables, bullet lists, or any other markdown formatting symbols.
+
+### Output Format
+
+<solution>...</solution>
+
+<answer>...</answer>
+
+### Question
+
+<question>
+{{ question }}
+</question>

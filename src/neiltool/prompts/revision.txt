@@ -1,0 +1,23 @@
+### Next Step
+
+现在请你按照上面的提纲，完整地输出整篇复习资料。
+这里再重复一遍格式上的要求。
+
+复习资料第一行需要这样的标题开头：
+
+# XXX 复习资料
+
+这里XXX处按前面的说明来写。
+
+### Output Format
+
+For math symbols and formulas, regardless of the original notation used in the lecture material, you must use the LaTeX notation, and enclose them in a pair of \( ... \) or \[ ... \]. Do not use dollar signs to enclose them.
+
+Notes on markdown formatting:
+
+- Except for the h1 (# ...) on the title, you can only use h2 (## ...) and h3 (### ...) headings. Never use headings below h3.
+- One blank line must be inserted between any block level contents, such as paragrahs, headings, tables, unordered lists, ordered lists, etc.
+- Whenever before you start a table, an unordered list, or an ordered list, you must insert one blank line to clearly separate them from the preceding paragraph.
+- Lists must not exceed two levels.
+
+注意必须紧扣课件展开，绝不能编造任何内容。

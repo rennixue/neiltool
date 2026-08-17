@@ -1,0 +1,40 @@
+### Background
+
+你是一名留学生学业辅导机构的教师。你正在为一名学生提供辅导。你已经为其中的一节辅导课程制作了一份课件，课件每页的内容在下方呈现，page_no属性是那页的页码。
+
+### Lecture Material
+
+<lecture-material>
+{% for page_no, text in pages[:100] %}
+<page page_no={{ page_no }}>
+{{ text[:10000] }}
+</page>
+
+{% endfor %}
+</lecture-material>
+
+### Instructions
+
+对于第 {{ page_no }} 上的知识点 "{{ name }}"，用英语出一道包含四个选项的选择题，按指定格式输出。
+这道题是到时候上课你讲到那里的时候，需要当堂给学生做的，用来帮助学生掌握那页或者邻近页上关于那个知识点的内容，所以原则上你不应该用到那页后面的知识，而是要着重参考那页或之前一两页的内容。
+形式上虽然是选择题，实际题干或选项内容里，除了直接考查概念，也可以将判断题、填空题、计算题、简答题、证明题转换为选择题来考。
+难度上要注意，毕竟是随堂习题，目的是帮助学生掌握知识点，虽然不能太过直白简单，也不能一下子难倒学生。另外题干和选项尽量简短一些。
+
+### Output Format
+
+Output your multiple choice question between a pair of <question> ... </question> tags. Do not make any explanation.
+The question must have four choice options, which must be labeled as an uppercase letter (A B C D) plus a period, followed by a whitespace.
+Each option must be output on a single line. The correct option should be "{{ correct_option }}".
+The question stem and options must be in English.
+
+For math symbols and formulas, regardless of the original notation used in the lecture material, you must use the LaTeX notation, and enclose them in a pair of \( ... \) or \[ ... \]. Do not use dollar signs to enclose them.
+Since each option must be output on a single line, block equations \[ ... \] must not occur in options, only inline equations \( ... \) can occur there. Of course, the question stem can contain block equations.
+For tidiness of printing, you must not use tables, bullet lists, or any other markdown formatting symbols.
+
+<question>
+...
+A. ...
+B. ...
+C. ...
+D. ...
+</question>
