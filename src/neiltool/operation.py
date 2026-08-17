@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import shutil
+import traceback
 import uuid
 from collections.abc import Iterable
 from datetime import datetime
@@ -72,6 +73,7 @@ class Operation:
             logger.error("job %d fail unknown: %r", job_id, exc)
             err_msg = "unexpected error during job run"
             priv_msg = repr(exc)[:20000]
+            traceback.print_exc()
         else:
             logger.info("job %d ok", job_id)
             err_msg = None
@@ -116,6 +118,7 @@ class Operation:
                 logger.error("file %d fail unknown: %r", file_id, exc)
                 err_msg = "unexpected error during file fetch and parse"
                 priv_msg = repr(exc)[:20000]
+                traceback.print_exc()
             else:
                 logger.info("file %d ok", file_id)
                 err_msg = None
