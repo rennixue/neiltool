@@ -38,24 +38,24 @@ async def save_data_async(obj: Any, path: str | os.PathLike[str]) -> None:
     return await asyncio.to_thread(save_data, obj, path)
 
 
-REFERENCE_DOCXS = {
-    "outline": str(Path(__file__).parent / "assets/outline.docx"),
-    "revision": str(Path(__file__).parent / "assets/revision.docx"),
+REFERENCE_DOCS = {
+    "outline": str(Path(__file__).parent / "assets/outline.odt"),
+    "revision": str(Path(__file__).parent / "assets/revision.odt"),
 }
 
 
-def md2docx(text: str, tmpl: Literal["outline", "revision"]) -> bytes | None:
+def md2odt(text: str, tmpl: Literal["outline", "revision"]) -> bytes | None:
     result = subprocess.run(
         [
             "pandoc",
             "-f",
             "markdown+tex_math_single_backslash",
             "-t",
-            "docx",
+            "odt",
             "--standalone",
             "--mathml",
             "--reference-doc",
-            REFERENCE_DOCXS[tmpl],
+            REFERENCE_DOCS[tmpl],
             "-o",
             "-",
         ],
@@ -68,8 +68,8 @@ def md2docx(text: str, tmpl: Literal["outline", "revision"]) -> bytes | None:
     return result.stdout
 
 
-async def md2docx_async(text: str, tmpl: Literal["outline", "revision"]) -> bytes | None:
-    return await asyncio.to_thread(md2docx, text, tmpl)
+async def md2odt_async(text: str, tmpl: Literal["outline", "revision"]) -> bytes | None:
+    return await asyncio.to_thread(md2odt, text, tmpl)
 
 
 def insert_blank_lines(content: str) -> str:

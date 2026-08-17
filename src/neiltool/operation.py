@@ -20,7 +20,7 @@ from .models.operation import OperationError
 from .operation_ai import OperationAI
 from .parse import IParse
 from .pptx_maker import make_pptx_async
-from .utils import md2docx_async
+from .utils import md2odt_async
 
 logger = logging.getLogger(__name__)
 
@@ -197,12 +197,12 @@ class Operation:
         )
 
         (self._static_dir / f"{prefix}-outline.txt").write_text(outline_text)
-        outline_docx = await md2docx_async(outline_text, "outline")
-        if outline_docx is None:
+        outline_odt = await md2odt_async(outline_text, "outline")
+        if outline_odt is None:
             outline_url = None
         else:
-            (self._static_dir / f"{prefix}-outline.docx").write_bytes(outline_docx)
-            outline_pdf = await self._gotenberg.convert_bytes("outline.docx", outline_docx)
+            (self._static_dir / f"{prefix}-outline.odt").write_bytes(outline_odt)
+            outline_pdf = await self._gotenberg.convert_bytes("outline.odt", outline_odt)
             (self._static_dir / f"{prefix}-outline.pdf").write_bytes(outline_pdf)
             outline_url = self._static_url + "/" + f"{prefix}-outline.pdf"
         await self._database.insert_material(
@@ -259,12 +259,12 @@ class Operation:
         prefix = make_rand_str()
 
         (self._static_dir / f"{prefix}-revision.txt").write_text(revision_text)
-        revision_docx = await md2docx_async(revision_text, "revision")
-        if revision_docx is None:
+        revision_odt = await md2odt_async(revision_text, "revision")
+        if revision_odt is None:
             revision_url = None
         else:
-            (self._static_dir / f"{prefix}-revision.docx").write_bytes(revision_docx)
-            revision_pdf = await self._gotenberg.convert_bytes("revision.docx", revision_docx)
+            (self._static_dir / f"{prefix}-revision.odt").write_bytes(revision_odt)
+            revision_pdf = await self._gotenberg.convert_bytes("revision.odt", revision_odt)
             (self._static_dir / f"{prefix}-revision.pdf").write_bytes(revision_pdf)
             revision_url = self._static_url + "/" + f"{prefix}-revision.pdf"
         await self._database.insert_material(
