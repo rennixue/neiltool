@@ -52,7 +52,7 @@ class JobRecord(Base):
     order_id: Mapped[int] = mapped_column(Integer)
     classroom_id: Mapped[int | None] = mapped_column(Integer)
     status: Mapped[enums.JobStatus] = mapped_column(
-        Enum(enums.JobStatus, values_callable=values_callable), server_default="'pend'"
+        Enum(enums.JobStatus, values_callable=values_callable), server_default=text("'pend'")
     )
     err_msg: Mapped[str | None] = mapped_column(VARCHAR(255))
     priv_msg: Mapped[str | None] = mapped_column(TEXT, deferred=True)
@@ -78,7 +78,7 @@ class FileRecord(Base):
     name: Mapped[str] = mapped_column(Text)
     url: Mapped[str] = mapped_column(Text)
     status: Mapped[enums.FileStatus] = mapped_column(
-        Enum(enums.FileStatus, values_callable=values_callable), server_default="'pend'"
+        Enum(enums.FileStatus, values_callable=values_callable), server_default=text("'pend'")
     )
     err_msg: Mapped[str | None] = mapped_column(VARCHAR(255))
     priv_msg: Mapped[str | None] = mapped_column(TEXT, deferred=True)
