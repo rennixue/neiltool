@@ -66,7 +66,7 @@ class FileRecord(Base):
     __table_args__ = {"mysql_default_charset": "utf8mb4"}
 
     file_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    job_id: Mapped[int] = mapped_column(ForeignKey("beike_job.job_id"))
+    job_id: Mapped[int] = mapped_column(ForeignKey("beike_job.job_id", ondelete="cascade"))
 
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
     updated_at: Mapped[datetime] = mapped_column(
@@ -92,7 +92,7 @@ class PageRecord(Base):
     __table_args__ = {"mysql_default_charset": "utf8mb4"}
 
     page_id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
-    file_id: Mapped[int] = mapped_column(ForeignKey("beike_file.file_id"))
+    file_id: Mapped[int] = mapped_column(ForeignKey("beike_file.file_id", ondelete="cascade"))
 
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
     updated_at: Mapped[datetime] = mapped_column(
@@ -111,7 +111,7 @@ class KeypointRecord(Base):
     __table_args__ = {"mysql_default_charset": "utf8mb4"}
 
     keypoint_id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
-    page_id: Mapped[int] = mapped_column(ForeignKey("beike_page.page_id"))
+    page_id: Mapped[int] = mapped_column(ForeignKey("beike_page.page_id", ondelete="cascade"))
 
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
     updated_at: Mapped[datetime] = mapped_column(
@@ -130,7 +130,7 @@ class QuestionRecord(Base):
     __table_args__ = {"mysql_default_charset": "utf8mb4"}
 
     question_id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
-    keypoint_id: Mapped[int] = mapped_column(ForeignKey("beike_keypoint.keypoint_id"))
+    keypoint_id: Mapped[int] = mapped_column(ForeignKey("beike_keypoint.keypoint_id", ondelete="cascade"))
 
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
     updated_at: Mapped[datetime] = mapped_column(
@@ -152,7 +152,7 @@ class MaterialRecord(Base):
     __table_args__ = {"mysql_default_charset": "utf8mb4"}
 
     material_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    job_id: Mapped[int] = mapped_column(ForeignKey("beike_job.job_id"))
+    job_id: Mapped[int] = mapped_column(ForeignKey("beike_job.job_id", ondelete="cascade"))
 
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
     updated_at: Mapped[datetime] = mapped_column(
