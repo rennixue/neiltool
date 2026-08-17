@@ -22,7 +22,7 @@
 
 另外如果观察课件内容发现这门课是讲英语听力、论文写作等语言和学术规范类辅导的，那么知识体系应该展现语言或学术上的知识点或技巧，比如英语听力中的 "Paraphrasing"，论文写作中的 "Harvard Reference" 等等，而不应该是听力材料、论文示例中的具体内容。
 
-每个提取的知识点的名称用英语呈现，尽量采用 Title Case 首字母大写，也可以用课件中的缩写或其他约定俗称的形式。
+每个提取的知识点的名称用英语呈现，尽量采用 Title Case 首字母大写 (e.g. Degrees of Freedom)，也可以用课件中的缩写或其他约定俗称的形式。
 一般来说，知识点是单个的，即不要用 "A and B", "A & B" 等形式，而应该给出一个上层的整体性知识点，或者只给出其中更重要的那个。
 知识点的名称要简洁，讲知识点本身，尽量不要 "... Overview", "Applications of ..." 这种拖泥带水的形式，直接给出知识点本身的名称。
 与课件教授的知识无关的内容，比如学习计划、讲课安排、作业要求、考试信息等等绝对不要作为知识点。
@@ -31,7 +31,7 @@
 
 Output the required json object directly. Do not make any explanation.
 List the keypoints by page order, skipping pages that do not contain keypoints.
-The names of keypoints must be in English, use Title Case if applicable, or use the abbreviation form in the lecture material.
+The names of keypoints must be in English, use Title Case (e.g. Degrees of Freedom) if applicable, or use the abbreviation form in the lecture material.
 
 ```json
 {
