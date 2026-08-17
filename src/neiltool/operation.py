@@ -185,10 +185,9 @@ class Operation:
             slide_url = None
         else:
             (self._static_dir / f"{prefix}-slide.pptx").write_bytes(slide_pptx)
-            slide_url = self._static_url + "/" + f"{prefix}-slide.pptx"
-            # slide_pdf = await self._gotenberg.convert_bytes("slide.pptx", slide_pptx)
-            # (self._static_dir / f"{prefix}-slide.pdf").write_bytes(slide_pdf)
-            # slide_url = self._static_url + "/" + f"{prefix}-slide.pdf"
+            slide_pdf = await self._gotenberg.convert_bytes("slide.pptx", slide_pptx)
+            (self._static_dir / f"{prefix}-slide.pdf").write_bytes(slide_pdf)
+            slide_url = self._static_url + "/" + f"{prefix}-slide.pdf"
         await self._database.insert_material(
             job_id,
             enums.MaterialType.Slide,
@@ -202,6 +201,7 @@ class Operation:
         if outline_docx is None:
             outline_url = None
         else:
+            (self._static_dir / f"{prefix}-outline.docx").write_bytes(outline_docx)
             outline_pdf = await self._gotenberg.convert_bytes("outline.docx", outline_docx)
             (self._static_dir / f"{prefix}-outline.pdf").write_bytes(outline_pdf)
             outline_url = self._static_url + "/" + f"{prefix}-outline.pdf"
@@ -263,6 +263,7 @@ class Operation:
         if revision_docx is None:
             revision_url = None
         else:
+            (self._static_dir / f"{prefix}-revision.docx").write_bytes(revision_docx)
             revision_pdf = await self._gotenberg.convert_bytes("revision.docx", revision_docx)
             (self._static_dir / f"{prefix}-revision.pdf").write_bytes(revision_pdf)
             revision_url = self._static_url + "/" + f"{prefix}-revision.pdf"
