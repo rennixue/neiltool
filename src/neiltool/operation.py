@@ -191,7 +191,7 @@ class Operation:
         await self._database.insert_material(
             job_id,
             enums.MaterialType.Slide,
-            f"{course_code_or_name} 上课方案与总结.pptx".lstrip(),
+            f"{course_code_or_name} 上课方案与总结.pdf".lstrip(),
             slide_url,
             slide_text,
         )
