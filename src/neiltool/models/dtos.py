@@ -73,6 +73,16 @@ class UpdateJobClassroomIdRet(BaseModel):
     classroom_id: int | None
 
 
+class SelectMaterialRet(BaseModel):
+    material_id: int
+    job_id: int
+    type: enums.MaterialType
+    name: str
+    tmp_url: str | None
+    url: str | None
+    text: str
+
+
 class UpdateMaterialUrlRet(BaseModel):
     material_id: int
     url: str

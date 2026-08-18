@@ -116,6 +116,16 @@ class PutJobClassroomResp(BaseModel):
 MaterialIdParam = RootModel[int]
 
 
+class GetMaterialResp(BaseModel):
+    material_id: int
+    job_id: int
+    type: enums.MaterialType
+    name: str
+    tmp_url: str | None
+    url: str | None
+    text: str
+
+
 class PutMaterialReq(BaseModel):
     url: HttpUrl
 

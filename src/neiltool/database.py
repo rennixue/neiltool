@@ -22,7 +22,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.mysql.types import MEDIUMTEXT
 from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, selectinload
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, selectinload, undefer
 
 from .models import dtos, enums
 
@@ -49,8 +49,8 @@ class JobRecord(Base):
         server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"),
     )
     type: Mapped[enums.JobType] = mapped_column(Enum(enums.JobType, values_callable=values_callable))
-    order_id: Mapped[int] = mapped_column(Integer)
-    classroom_id: Mapped[int | None] = mapped_column(Integer)
+    order_id: Mapped[int] = mapped_column(Integer, index=True)
+    classroom_id: Mapped[int | None] = mapped_column(Integer, index=True)
     status: Mapped[enums.JobStatus] = mapped_column(
         Enum(enums.JobStatus, values_callable=values_callable), server_default=text("'pend'")
     )
@@ -326,6 +326,21 @@ class Database:
             session.add(job)
             await session.commit()
         return dtos.UpdateJobClassroomIdRet(job_id=job_id, classroom_id=classroom_id)
+
+    async def select_material(self, material_id: int) -> dtos.SelectMaterialRet | None:
+        async with self._session_factory() as session:
+            material = await session.get(MaterialRecord, material_id, options=[undefer(MaterialRecord.text)])
+            if material is None:
+                return None
+        return dtos.SelectMaterialRet(
+            material_id=material.material_id,
+            job_id=material.job_id,
+            type=material.type,
+            name=material.name,
+            tmp_url=material.tmp_url,
+            url=material.url,
+            text=material.text,
+        )
 
     async def update_material_url(self, material_id: int, url: str) -> dtos.UpdateMaterialUrlRet | None:
         async with self._session_factory() as session:

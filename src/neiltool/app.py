@@ -8,6 +8,8 @@ from typing import TypedDict
 
 from starlette.applications import Starlette
 from starlette.exceptions import HTTPException
+from starlette.middleware import Middleware
+from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import HTMLResponse
 from starlette.routing import Mount, Route
@@ -88,6 +90,9 @@ def create_app() -> Starlette:
             InvalidRequest: handle_invalid_request,
             Exception: handle_exception,
         },  # pyright: ignore[reportArgumentType]
+        middleware=[
+            Middleware(CORSMiddleware, allow_origins=["*"]),
+        ],
         routes=[
             Route("/doc", get_doc, methods=["GET"]),
             Mount("/static", StaticFiles(directory=static_dir)),
@@ -96,7 +101,7 @@ def create_app() -> Starlette:
             PydanticRoute("/api/job/{job_id}/status", get_job_status, methods=["GET"]),
             PydanticRoute("/api/job/{job_id}/result", get_job_result, methods=["GET"]),
             PydanticRoute("/api/job/{job_id}/classroom", put_job_classroom, methods=["PUT"]),
-            PydanticRoute("/api/material/{material_id}", put_material, methods=["PUT"]),
+            PydanticRoute("/api/material/{material_id}", get_or_put_material, methods=["GET", "PUT"]),
             PydanticRoute("/api/question/{question_id}/answer", patch_question_answer, methods=["PATCH"]),
         ],
     )
@@ -272,6 +277,33 @@ async def put_job_classroom(request: Request[AppState]) -> _WrapRespRetT:
     if dto is None:
         return WrapResp(code=404, msg="job not found"), 404
     return WrapResp(data=PutJobClassroomResp(job_id=dto.job_id, classroom_id=dto.classroom_id))
+
+
+async def get_or_put_material(request: Request[AppState]) -> _WrapRespRetT:
+    if request.method == "GET":
+        return await get_material(request)
+    elif request.method == "PUT":
+        return await put_material(request)
+    else:
+        raise HTTPException(405)
+
+
+async def get_material(request: Request[AppState]) -> _WrapRespRetT:
+    material_id = extract_path_param(request, "material_id", int)
+    dto = await request.state["database"].select_material(material_id)
+    if dto is None:
+        return WrapResp(code=404, msg="material not found"), 404
+    return WrapResp(
+        data=GetMaterialResp(
+            material_id=dto.material_id,
+            job_id=dto.job_id,
+            type=dto.type,
+            name=dto.name,
+            tmp_url=dto.tmp_url,
+            url=dto.url,
+            text=dto.text,
+        )
+    )
 
 
 async def put_material(request: Request[AppState]) -> _WrapRespRetT:
