@@ -1,6 +1,7 @@
 import logging
 from io import BytesIO
 from pathlib import Path
+from typing import Any
 
 from httpx import AsyncClient
 
@@ -28,6 +29,20 @@ class Gotenberg:
         files = {"files": (name, input_)}
         fp_out = BytesIO()
         async with self._client.stream("POST", "/forms/libreoffice/convert", files=files, timeout=300) as response:
+            async for chunk in response.aiter_bytes(65536):
+                fp_out.write(chunk)
+        return fp_out.getvalue()
+
+    async def render(self, url: str, options: dict[str, Any]) -> bytes:
+        form = {"url": url, **options}
+        fp_out = BytesIO()
+        async with self._client.stream(
+            "POST",
+            "/forms/chromium/convert/url",
+            data=form,
+            files={"file": ""},
+            timeout=300,
+        ) as response:
             async for chunk in response.aiter_bytes(65536):
                 fp_out.write(chunk)
         return fp_out.getvalue()

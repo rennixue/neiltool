@@ -95,6 +95,8 @@ def create_app() -> Starlette:
         ],
         routes=[
             Route("/doc", get_doc, methods=["GET"]),
+            Route("/render", get_render, methods=["GET"]),
+            Mount("/assets", StaticFiles(directory="./static/assets")),
             Mount("/static", StaticFiles(directory=static_dir)),
             PydanticRoute("/api/health", get_health, methods=["GET"]),
             PydanticRoute("/api/job", post_job, methods=["POST"]),
@@ -109,6 +111,15 @@ def create_app() -> Starlette:
 
 async def get_doc(request: Request[AppState]) -> HTMLResponse:
     doc_path = Path("./static/doc.html")
+    if doc_path.exists():
+        bytes_ = doc_path.read_bytes()
+    else:
+        bytes_ = b""
+    return HTMLResponse(bytes_)
+
+
+async def get_render(request: Request[AppState]) -> HTMLResponse:
+    doc_path = Path("./static/index.html")
     if doc_path.exists():
         bytes_ = doc_path.read_bytes()
     else:
