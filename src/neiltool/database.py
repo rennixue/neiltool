@@ -440,11 +440,13 @@ class Database:
 
     async def insert_material(
         self, job_id: int, type_: enums.MaterialType, name: str, tmp_url: str | None, text_: str
-    ) -> None:
+    ) -> int:
         async with self._session_factory() as session:
             material = MaterialRecord(job_id=job_id, type=type_, name=name, tmp_url=tmp_url, text=text_)
             session.add(material)
             await session.commit()
+            await session.refresh(material)
+        return material.material_id
 
     async def insert_keypoints(self, keypoints: Sequence[dtos.InsertKeypointArg]) -> None:
         async with self._session_factory() as session:

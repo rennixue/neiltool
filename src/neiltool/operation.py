@@ -40,6 +40,7 @@ class Operation:
         gotenberg: Gotenberg,
         llamacloud: Llamacloud,
         parse: IParse,
+        base_url: str,
         static_dir: Path,
         static_url: str,
         tmp_dir: Path,
@@ -49,6 +50,7 @@ class Operation:
         self._doc2txt = doc2txt
         self._gotenberg = gotenberg
         self._llamacloud = llamacloud
+        self._base_url = base_url
         self._static_dir = static_dir
         self._static_dir.mkdir(parents=True, exist_ok=True)
         self._static_url = static_url
@@ -208,13 +210,18 @@ class Operation:
             outline_pdf = await self._gotenberg.convert_bytes("outline.odt", outline_odt)
             (self._static_dir / f"{prefix}-outline.pdf").write_bytes(outline_pdf)
             outline_url = self._static_url + "/" + f"{prefix}-outline.pdf"
-        await self._database.insert_material(
+        outline_material_id = await self._database.insert_material(
             job_id,
             enums.MaterialType.Outline,
             f"{course_code_or_name} 知识点大纲.pdf".lstrip(),
             outline_url,
             outline_text,
         )
+
+        outline_pdf_by_html = await self._gotenberg.render_outline(
+            self._base_url + f"/render?material_id={outline_material_id}"
+        )
+        (self._static_dir / f"{prefix}-outline.html.pdf").write_bytes(outline_pdf_by_html)
 
         if not slide_url or not outline_url:
             raise OperationError("fail to render file", f"slide={bool(slide_url)} outline={bool(outline_url)}")
@@ -270,13 +277,18 @@ class Operation:
             revision_pdf = await self._gotenberg.convert_bytes("revision.odt", revision_odt)
             (self._static_dir / f"{prefix}-revision.pdf").write_bytes(revision_pdf)
             revision_url = self._static_url + "/" + f"{prefix}-revision.pdf"
-        await self._database.insert_material(
+        revision_material_id = await self._database.insert_material(
             job_id,
             enums.MaterialType.Revision,
             f"{orig_name} 复习资料.pdf".lstrip(),
             revision_url,
             revision_text,
         )
+
+        revision_pdf_by_html = await self._gotenberg.render_revision(
+            self._base_url + f"/render?material_id={revision_material_id}"
+        )
+        (self._static_dir / f"{prefix}-revision.html.pdf").write_bytes(revision_pdf_by_html)
 
         if not revision_url:
             raise OperationError("fail to render file", f"revision_url={bool(revision_url)}")

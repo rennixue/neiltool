@@ -55,6 +55,7 @@ async def lifespan(app: Starlette) -> AsyncGenerator[AppState]:
         gotenberg,
         llamacloud,
         moonshot,
+        str(settings.base_url),
         settings.static_dir,
         str(settings.static_url),
         settings.tmp_dir / "operation",

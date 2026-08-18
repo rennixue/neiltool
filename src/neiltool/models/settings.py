@@ -56,6 +56,7 @@ class AppSettings(BaseSettings):
     gotenberg: GotenbergSettings
     llamacloud: LlamacloudSettings
     moonshot: MoonshotSettings
+    base_url: HttpUrl
     static_dir: Path
     static_url: HttpUrl
     tmp_dir: Path
