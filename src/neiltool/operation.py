@@ -50,10 +50,10 @@ class Operation:
         self._doc2txt = doc2txt
         self._gotenberg = gotenberg
         self._llamacloud = llamacloud
-        self._base_url = base_url
+        self._base_url = base_url.removesuffix("/")
         self._static_dir = static_dir
         self._static_dir.mkdir(parents=True, exist_ok=True)
-        self._static_url = static_url
+        self._static_url = static_url.removesuffix("/")
         self._base_tmp_dir = tmp_dir
         self._base_tmp_dir.mkdir(parents=True, exist_ok=True)
         self._ai = OperationAI(agent, daobi_database, parse, tmp_dir / "ai")
