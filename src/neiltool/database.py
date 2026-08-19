@@ -384,6 +384,28 @@ class Database:
             last_correct=is_correct,
         )
 
+    async def update_batch_question_answer(self, pairs: list[tuple[int, bool]]) -> dtos.UpdateBatchQuestionAnswerRet:
+        question_ids: list[int] = []
+        async with self._session_factory() as session:
+            # usually few questions
+            for question_id, is_correct in pairs:
+                question = await session.get(QuestionRecord, question_id)
+                if question is None:
+                    continue
+                await session.execute(
+                    update(QuestionRecord)
+                    .where(QuestionRecord.question_id == question_id)
+                    .values(attempt=QuestionRecord.attempt + 1)
+                )
+                await session.refresh(question, ["attempt"])
+                if question.attempt == 1:
+                    question.first_correct = is_correct
+                question.last_correct = is_correct
+                session.add(question)
+                question_ids.append(question_id)
+            await session.commit()
+        return dtos.UpdateBatchQuestionAnswerRet(question_ids=question_ids)
+
     async def update_job_succeed(self, job_id: int) -> None:
         async with self._session_factory() as session:
             job = await session.get(JobRecord, job_id)

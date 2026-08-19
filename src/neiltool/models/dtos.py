@@ -96,6 +96,10 @@ class UpdateQuestionAnswerRet(BaseModel):
     last_correct: bool
 
 
+class UpdateBatchQuestionAnswerRet(BaseModel):
+    question_ids: list[int]
+
+
 class UpdateFileRetPage(BaseModel):
     page_id: int
     page_no: int

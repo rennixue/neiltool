@@ -148,3 +148,16 @@ class PatchQuestionAnswerResp(BaseModel):
     attempt: int
     first_correct: bool
     last_correct: bool
+
+
+class PostBatchQuestionAnswerReqItem(BaseModel):
+    question_id: int
+    is_correct: bool
+
+
+class PostBatchQuestionAnswerReq(BaseModel):
+    items: list[PostBatchQuestionAnswerReqItem]
+
+
+class PostBatchQuestionAnswerResp(BaseModel):
+    question_ids: list[int]

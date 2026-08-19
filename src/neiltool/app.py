@@ -106,6 +106,7 @@ def create_app() -> Starlette:
             PydanticRoute("/api/job/{job_id}/classroom", put_job_classroom, methods=["PUT"]),
             PydanticRoute("/api/material/{material_id}", get_or_put_material, methods=["GET", "PUT"]),
             PydanticRoute("/api/question/{question_id}/answer", patch_question_answer, methods=["PATCH"]),
+            PydanticRoute("/api/batch/question/answer", post_batch_question_answer, methods=["POST"]),
         ],
     )
 
@@ -342,3 +343,11 @@ async def patch_question_answer(request: Request[AppState]) -> _WrapRespRetT:
             last_correct=dto.last_correct,
         )
     )
+
+
+async def post_batch_question_answer(request: Request[AppState]) -> _WrapRespRetT:
+    req = await extract_req_body(request, PostBatchQuestionAnswerReq)
+    dto = await request.state["database"].update_batch_question_answer(
+        [(it.question_id, it.is_correct) for it in req.items]
+    )
+    return WrapResp(data=PostBatchQuestionAnswerResp(question_ids=dto.question_ids))
