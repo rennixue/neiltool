@@ -93,7 +93,7 @@ class Operation:
             parsed_files = await self.make_parsed_files(job.files, tmp_dir)
             match job.type:
                 case enums.JobType.Intro:
-                    await self.make_intro(job.job_id, job.order_id, parsed_files)
+                    await self.make_intro(job.job_id, job.order_id, parsed_files, job.teacher_msg)
                 case enums.JobType.Regular:
                     await self.make_regular(job.job_id, job.order_id, parsed_files)
         finally:
@@ -166,7 +166,9 @@ class Operation:
         finally:
             download_path.unlink(missing_ok=True)
 
-    async def make_intro(self, job_id: int, order_id: int, files: list[dtos.UpdateFileRet]) -> None:
+    async def make_intro(
+        self, job_id: int, order_id: int, files: list[dtos.UpdateFileRet], teacher_msg: str | None
+    ) -> None:
         tutor_files = [it for it in files if it.type == enums.FileType.Tutor]
         if len(tutor_files) != 1:
             raise OperationError("not 1 tutor file")
@@ -176,7 +178,7 @@ class Operation:
             syllabus_file = None
         else:
             syllabus_file = syllabus_files[0]
-        output = await self._ai.run_intro(order_id, tutor_file, syllabus_file)
+        output = await self._ai.run_intro(order_id, tutor_file, syllabus_file, teacher_msg)
 
         course_code_or_name = (output.slide.course_code or output.slide.course_name)[:50]
         course_code_or_name = sanitize_filename(course_code_or_name)
@@ -185,43 +187,42 @@ class Operation:
         prefix = make_rand_str()
 
         (self._static_dir / f"{prefix}-slide.json").write_text(slide_text)
-        slide_pptx = await make_pptx_async(output.slide)
-        if slide_pptx is None:
-            slide_url = None
-        else:
-            (self._static_dir / f"{prefix}-slide.pptx").write_bytes(slide_pptx)
-            slide_pdf = await self._gotenberg.convert_bytes("slide.pptx", slide_pptx)
-            (self._static_dir / f"{prefix}-slide.pdf").write_bytes(slide_pdf)
-            slide_url = self._static_url + "/" + f"{prefix}-slide.pdf"
-        await self._database.insert_material(
+        slide_material_id = await self._database.insert_material(
             job_id,
             enums.MaterialType.Slide,
             f"{course_code_or_name} 上课方案与总结.pdf".lstrip(),
-            slide_url,
+            None,
             slide_text,
         )
+        slide_url = None
+        if slide_pptx := await make_pptx_async(output.slide):
+            (self._static_dir / f"{prefix}-slide.pptx").write_bytes(slide_pptx)
+            if slide_pdf := await self._gotenberg.convert_bytes("slide.pptx", slide_pptx):
+                (self._static_dir / f"{prefix}-slide.pdf").write_bytes(slide_pdf)
+                slide_url = self._static_url + "/" + f"{prefix}-slide.pdf"
+        await self._database.update_material_tmp_url(slide_material_id, slide_url)
 
         (self._static_dir / f"{prefix}-outline.txt").write_text(outline_text)
-        outline_odt = await md2odt_async(outline_text, "outline")
-        if outline_odt is None:
-            outline_url = None
-        else:
-            (self._static_dir / f"{prefix}-outline.odt").write_bytes(outline_odt)
-            outline_pdf = await self._gotenberg.convert_bytes("outline.odt", outline_odt)
-            (self._static_dir / f"{prefix}-outline.pdf").write_bytes(outline_pdf)
-            outline_url = self._static_url + "/" + f"{prefix}-outline.pdf"
         outline_material_id = await self._database.insert_material(
             job_id,
             enums.MaterialType.Outline,
             f"{course_code_or_name} 知识点大纲.pdf".lstrip(),
-            outline_url,
+            None,
             outline_text,
         )
-
-        outline_pdf_by_html = await self._gotenberg.render_outline(
+        outline_url = None
+        if outline_pdf := await self._gotenberg.render_outline(
             self._base_url + f"/render?material_id={outline_material_id}"
-        )
-        (self._static_dir / f"{prefix}-outline.html.pdf").write_bytes(outline_pdf_by_html)
+        ):
+            (self._static_dir / f"{prefix}-outline.pdf").write_bytes(outline_pdf)
+            outline_url = self._static_url + "/" + f"{prefix}-outline.pdf"
+        else:
+            if outline_odt := await md2odt_async(outline_text, "outline"):
+                (self._static_dir / f"{prefix}-outline.odt").write_bytes(outline_odt)
+                if outline_pdf := await self._gotenberg.convert_bytes("outline.odt", outline_odt):
+                    (self._static_dir / f"{prefix}-outline.pdf").write_bytes(outline_pdf)
+                    outline_url = self._static_url + "/" + f"{prefix}-outline.pdf"
+        await self._database.update_material_tmp_url(outline_material_id, outline_url)
 
         if not slide_url or not outline_url:
             raise OperationError("fail to render file", f"slide={bool(slide_url)} outline={bool(outline_url)}")
@@ -269,26 +270,26 @@ class Operation:
         prefix = make_rand_str()
 
         (self._static_dir / f"{prefix}-revision.txt").write_text(revision_text)
-        revision_odt = await md2odt_async(revision_text, "revision")
-        if revision_odt is None:
-            revision_url = None
-        else:
-            (self._static_dir / f"{prefix}-revision.odt").write_bytes(revision_odt)
-            revision_pdf = await self._gotenberg.convert_bytes("revision.odt", revision_odt)
-            (self._static_dir / f"{prefix}-revision.pdf").write_bytes(revision_pdf)
-            revision_url = self._static_url + "/" + f"{prefix}-revision.pdf"
         revision_material_id = await self._database.insert_material(
             job_id,
             enums.MaterialType.Revision,
             f"{orig_name} 复习资料.pdf".lstrip(),
-            revision_url,
+            None,
             revision_text,
         )
-
-        revision_pdf_by_html = await self._gotenberg.render_revision(
+        revision_url = None
+        if revision_pdf := await self._gotenberg.render_revision(
             self._base_url + f"/render?material_id={revision_material_id}"
-        )
-        (self._static_dir / f"{prefix}-revision.html.pdf").write_bytes(revision_pdf_by_html)
+        ):
+            (self._static_dir / f"{prefix}-revision.pdf").write_bytes(revision_pdf)
+            revision_url = self._static_url + "/" + f"{prefix}-revision.pdf"
+        else:
+            if revision_odt := await md2odt_async(revision_text, "revision"):
+                (self._static_dir / f"{prefix}-revision.odt").write_bytes(revision_odt)
+                if revision_pdf := await self._gotenberg.convert_bytes("revision.odt", revision_odt):
+                    (self._static_dir / f"{prefix}-revision.pdf").write_bytes(revision_pdf)
+                    revision_url = self._static_url + "/" + f"{prefix}-revision.pdf"
+        await self._database.update_material_tmp_url(revision_material_id, revision_url)
 
         if not revision_url:
             raise OperationError("fail to render file", f"revision_url={bool(revision_url)}")

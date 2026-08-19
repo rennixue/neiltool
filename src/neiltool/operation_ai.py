@@ -56,10 +56,11 @@ class OperationAI:
         return order_info
 
     async def run_intro(
-        self, order_id: int, tutor: dtos.UpdateFileRet, syllabus: dtos.UpdateFileRet | None
+        self, order_id: int, tutor: dtos.UpdateFileRet, syllabus: dtos.UpdateFileRet | None, teacher_msg: str | None
     ) -> RunIntroOutput:
         order_info = await self._make_order_info(order_id)
         need = "\n------\n".join(it for it in order_info.needs.values())
+        teacher_msg = teacher_msg or ""
         tutor_text = to_text(tutor.pages)
 
         tutor_schedule = await self._agent.tutor_schedule(tutor_text)
@@ -71,6 +72,7 @@ class OperationAI:
             course_code=order_info.course_code,
             course_name=order_info.course_name,
             need=need,
+            teacher_msg=teacher_msg,
             text=tutor_text,
             syllabus_overview=syllabus_overview,
         )
@@ -79,6 +81,7 @@ class OperationAI:
             course_code=order_info.course_code,
             course_name=order_info.course_name,
             need=need,
+            teacher_msg=teacher_msg,
             text=tutor_text,
             knowledge=knowledge,
         )
@@ -87,6 +90,7 @@ class OperationAI:
             course_code=order_info.course_code,
             course_name=order_info.course_name,
             student_name=order_info.student_name,
+            teacher_msg=teacher_msg,
             tutor_name=tutor.name,
             text=tutor_text,
             tutor_schedule=tutor_schedule,

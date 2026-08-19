@@ -25,29 +25,39 @@ class Gotenberg:
                     async for chunk in response.aiter_bytes(65536):
                         fp_out.write(chunk)
 
-    async def convert_bytes(self, name: str, input_: bytes) -> bytes:
+    async def convert_bytes(self, name: str, input_: bytes) -> bytes | None:
         files = {"files": (name, input_)}
         fp_out = BytesIO()
-        async with self._client.stream("POST", "/forms/libreoffice/convert", files=files, timeout=300) as response:
-            async for chunk in response.aiter_bytes(65536):
-                fp_out.write(chunk)
-        return fp_out.getvalue()
+        try:
+            async with self._client.stream("POST", "/forms/libreoffice/convert", files=files, timeout=300) as response:
+                async for chunk in response.aiter_bytes(65536):
+                    fp_out.write(chunk)
+        except Exception as exc:
+            logger.error("gotenberg fail to convert_bytes: %r", exc)
+            return None
+        else:
+            return fp_out.getvalue()
 
-    async def render_bytes(self, url: str, options: dict[str, Any]) -> bytes:
+    async def render_bytes(self, url: str, options: dict[str, Any]) -> bytes | None:
         form = {"url": url, **options}
         fp_out = BytesIO()
-        async with self._client.stream(
-            "POST",
-            "/forms/chromium/convert/url",
-            data=form,
-            files={"file": ""},  # multipart/form-data required
-            timeout=300,
-        ) as response:
-            async for chunk in response.aiter_bytes(65536):
-                fp_out.write(chunk)
-        return fp_out.getvalue()
+        try:
+            async with self._client.stream(
+                "POST",
+                "/forms/chromium/convert/url",
+                data=form,
+                files={"file": ""},  # multipart/form-data required
+                timeout=300,
+            ) as response:
+                async for chunk in response.aiter_bytes(65536):
+                    fp_out.write(chunk)
+        except Exception as exc:
+            logger.error("gotenberg fail to render_bytes: %r", exc)
+            return None
+        else:
+            return fp_out.getvalue()
 
-    async def render_outline(self, url: str) -> bytes:
+    async def render_outline(self, url: str) -> bytes | None:
         options = {
             "paperWidth": "8.5",
             "paperHeight": "11",
@@ -60,13 +70,9 @@ class Gotenberg:
             # do not use waitForExpression, because it cannot judge whether fonts have been loaded or not
             "waitDelay": "10s",
         }
-        try:
-            return await self.render_bytes(url, options)
-        except Exception as exc:
-            logger.error("gotenberg fail to render_outline: %r", exc)
-            return b""
+        return await self.render_bytes(url, options)
 
-    async def render_revision(self, url: str) -> bytes:
+    async def render_revision(self, url: str) -> bytes | None:
         options = {
             "paperWidth": "8.5",
             "paperHeight": "11",
@@ -75,12 +81,8 @@ class Gotenberg:
             "marginBottom": "0.5",
             "marginLeft": "0.5",
             "marginRight": "0.5",
-            "scale": 1.0,
+            "scale": 0.8333,
             # do not use waitForExpression, because it cannot judge whether fonts have been loaded or not
             "waitDelay": "10s",
         }
-        try:
-            return await self.render_bytes(url, options)
-        except Exception as exc:
-            logger.error("gotenberg fail to render_revision: %r", exc)
-            return b""
+        return await self.render_bytes(url, options)

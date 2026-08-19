@@ -34,6 +34,7 @@ class PostJobReq(BaseModel):
     type: enums.JobType
     order_id: int
     classroom_id: int | None = None
+    teacher_msg: str | None = None
     files: list[PostJobReqFile]
 
     @field_validator("files", mode="after")

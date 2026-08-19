@@ -16,6 +16,13 @@
 学生昵称: {{ student_name }}
 课件文件名: {{ tutor_name }}
 
+{% if teacher_msg %}
+你阅读订单需求和课程材料后，关于如何辅导这个订单可能已经产生了一些想法:
+<你的想法>
+{{ teacher_msg[:20000] }}
+</你的想法>
+{% endif %}
+
 ### Official Material Overview
 
 <official-material>

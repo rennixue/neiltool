@@ -51,6 +51,7 @@ class JobRecord(Base):
     type: Mapped[enums.JobType] = mapped_column(Enum(enums.JobType, values_callable=values_callable))
     order_id: Mapped[int] = mapped_column(Integer, index=True)
     classroom_id: Mapped[int | None] = mapped_column(Integer, index=True)
+    teacher_msg: Mapped[str | None] = mapped_column(TEXT)
     status: Mapped[enums.JobStatus] = mapped_column(
         Enum(enums.JobStatus, values_callable=values_callable), server_default=text("'pend'")
     )
@@ -200,6 +201,7 @@ class Database:
         type_: enums.JobType,
         order_id: int,
         classroom_id: int | None,
+        teacher_msg: str | None,
         files: Sequence[dtos.InsertJobArgFile],
     ) -> dtos.InsertJobRet:
         async with self._session_factory() as session:
@@ -207,6 +209,7 @@ class Database:
                 type=type_,
                 order_id=order_id,
                 classroom_id=classroom_id,
+                teacher_msg=teacher_msg,
                 files=[FileRecord(type=file.type, ident=file.ident, name=file.name, url=file.url) for file in files],
             )
             session.add(job)
@@ -218,6 +221,7 @@ class Database:
             type=job.type,
             order_id=job.order_id,
             status=job.status,
+            teacher_msg=teacher_msg,
             files=[
                 dtos.InsertJobRetFile(
                     file_id=file.file_id,
@@ -447,6 +451,15 @@ class Database:
             await session.commit()
             await session.refresh(material)
         return material.material_id
+
+    async def update_material_tmp_url(self, material_id: int, tmp_url: str | None) -> None:
+        async with self._session_factory() as session:
+            material = await session.get(MaterialRecord, material_id)
+            if material is None:
+                return None
+            material.tmp_url = tmp_url
+            session.add(material)
+            await session.commit()
 
     async def insert_keypoints(self, keypoints: Sequence[dtos.InsertKeypointArg]) -> None:
         async with self._session_factory() as session:

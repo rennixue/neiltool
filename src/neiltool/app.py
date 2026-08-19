@@ -150,6 +150,7 @@ async def post_job(request: Request[AppState]) -> _WrapRespRetT:
         req.type,
         req.order_id,
         req.classroom_id,
+        req.teacher_msg,
         files=[
             dtos.InsertJobArgFile(
                 type=file.type,

@@ -24,6 +24,7 @@ class InsertJobRet(BaseModel):
     type: enums.JobType
     order_id: int
     status: enums.JobStatus
+    teacher_msg: str | None
     files: list[InsertJobRetFile]
 
 

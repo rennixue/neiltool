@@ -135,6 +135,7 @@ class Agent(BaseAgent):
         course_code: str,
         course_name: str,
         need: str,
+        teacher_msg: str,
         text: str,
         syllabus_overview: str,
     ) -> Slide1Schema:
@@ -144,6 +145,7 @@ class Agent(BaseAgent):
             course_name=course_name,
             course_code=course_code,
             need=need,
+            teacher_msg=teacher_msg,
             text=text,
             syllabus_overview=syllabus_overview,
         )
@@ -153,7 +155,7 @@ class Agent(BaseAgent):
 
     slide_1 = with_fallback(
         _slide_1,
-        lambda self, course_code, course_name, need, text, syllabus_overview: Slide1Schema.fallback(),
+        lambda self, course_code, course_name, need, teacher_msg, text, syllabus_overview: Slide1Schema.fallback(),
     )
 
     async def _slide_2(
@@ -161,6 +163,7 @@ class Agent(BaseAgent):
         course_code: str,
         course_name: str,
         need: str,
+        teacher_msg: str,
         text: str,
         knowledge: str,
     ) -> Slide2Schema:
@@ -170,6 +173,7 @@ class Agent(BaseAgent):
             course_name=course_name,
             course_code=course_code,
             need=need,
+            teacher_msg=teacher_msg,
             text=text,
             knowledge=knowledge,
         )
@@ -179,7 +183,7 @@ class Agent(BaseAgent):
 
     slide_2 = with_fallback(
         _slide_2,
-        lambda self, course_code, course_name, need, text, knowledge: Slide2Schema.fallback(),
+        lambda self, course_code, course_name, need, teacher_msg, text, knowledge: Slide2Schema.fallback(),
     )
 
     async def _outline(
@@ -188,6 +192,7 @@ class Agent(BaseAgent):
         course_code: str,
         course_name: str,
         student_name: str,
+        teacher_msg: str,
         tutor_name: str,
         text: str,
         tutor_schedule: str,
@@ -202,6 +207,7 @@ class Agent(BaseAgent):
             course_code=course_code,
             course_name=course_name,
             student_name=student_name,
+            teacher_msg=teacher_msg,
             tutor_name=tutor_name,
             text=text,
             tutor_schedule=tutor_schedule,
@@ -224,7 +230,7 @@ class Agent(BaseAgent):
     # fmt: off
     outline = with_fallback(
         _outline,
-        lambda self, univ_name, course_code, course_name, student_name, tutor_name, text, tutor_schedule, syllabus_overview, knowledge: "",
+        lambda self, univ_name, course_code, course_name, student_name, teacher_msg, tutor_name, text, tutor_schedule, syllabus_overview, knowledge: "",
     )
     # fmt: on
 
