@@ -124,3 +124,8 @@ class InsertKeypointArg(BaseModel):
     keypoint_no: int
     name: str
     questions: list[InsertKeypointArgQuestion]
+
+
+class SelectMaterialNameIntroRet(BaseModel):
+    type: enums.MaterialType
+    name: str

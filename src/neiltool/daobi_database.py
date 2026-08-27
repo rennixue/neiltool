@@ -92,3 +92,21 @@ class DaobiDatabase:
             )
             rows = cursor.all()
         return [OrderFileRemote.model_validate(row, from_attributes=True) for row in rows]
+
+    async def fetch_course_code_and_name(self, order_id: int) -> tuple[str, str] | None:
+        async with self._engine.connect() as conn:
+            cursor = await conn.execute(
+                sqlalchemy.text(
+                    dedent("""
+                        SELECT course_code, course_name
+                        FROM stud_purchase_order
+                        WHERE course_id = :order_id
+                        LIMIT 1
+                    """)
+                ),
+                {"order_id": order_id},
+            )
+            if row := cursor.one_or_none():
+                return (row[0] or "").strip(), (row[1] or "").strip()
+            else:
+                return None

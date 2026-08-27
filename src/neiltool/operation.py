@@ -166,6 +166,17 @@ class Operation:
         finally:
             download_path.unlink(missing_ok=True)
 
+    async def make_course_code_or_name_from_daobi(self, order_id: int) -> str:
+        try:
+            maybe_pair = await self._daobi_database.fetch_course_code_and_name(order_id)
+        except Exception as exc:
+            logger.error("fail to fetch_course_code_and_name: %r", exc)
+            maybe_pair = None
+        if maybe_pair:
+            s = maybe_pair[0] or maybe_pair[1]
+            return sanitize_filename(s[:50])
+        return ""
+
     async def make_intro(
         self, job_id: int, order_id: int, files: list[dtos.UpdateFileRet], teacher_msg: str | None
     ) -> None:
@@ -182,6 +193,8 @@ class Operation:
 
         course_code_or_name = (output.slide.course_code or output.slide.course_name)[:50]
         course_code_or_name = sanitize_filename(course_code_or_name)
+        if course_code_or_name == "":
+            course_code_or_name = await self.make_course_code_or_name_from_daobi(order_id)
         slide_text = output.slide.model_dump_json()
         outline_text = output.outline
         prefix = make_rand_str()
@@ -264,8 +277,31 @@ class Operation:
                 )
         await self._database.insert_keypoints(dto_keypoints)
 
-        orig_name = tutor_file.name.partition(".")[0][:50]
-        orig_name = sanitize_filename(orig_name)
+        try:
+            dto_material = await self._database.select_material_name_intro(order_id)
+        except Exception as exc:
+            logger.error("fail to select_material_name_intro: %r", exc)
+            dto_material = None
+        if dto_material is not None:
+            if dto_material.type == enums.MaterialType.Slide:
+                course_code_or_name = dto_material.name.removesuffix(" 上课方案与总结.pdf")
+            elif dto_material.type == enums.MaterialType.Outline:
+                course_code_or_name = dto_material.name.removesuffix(" 知识点大纲.pdf")
+            else:
+                logger.warning("unexpected material type %s when select_material_name_intro", dto_material.type)
+                course_code_or_name = dto_material.name.removesuffix(".pdf")
+        else:
+            course_code_or_name = await self.make_course_code_or_name_from_daobi(order_id)
+        date_str = datetime.now().strftime("%m%d")
+        revision_name = f"{course_code_or_name} 复习资料 {date_str}.pdf".lstrip()
+        try:
+            count = await self._database.select_material_name_count(order_id, revision_name)
+        except Exception as exc:
+            logger.error("fail to select_material_name_count: %r", exc)
+            count = 0
+        if count != 0:
+            revision_name = f"{course_code_or_name} 复习资料 {date_str}-{count + 1}.pdf".lstrip()
+
         revision_text = output.revision
         prefix = make_rand_str()
 
@@ -273,7 +309,7 @@ class Operation:
         revision_material_id = await self._database.insert_material(
             job_id,
             enums.MaterialType.Revision,
-            f"{orig_name} 复习资料.pdf".lstrip(),
+            revision_name,
             None,
             revision_text,
         )

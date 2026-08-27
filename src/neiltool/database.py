@@ -16,6 +16,7 @@ from sqlalchemy import (
     Integer,
     SmallInteger,
     Text,
+    func,
     select,
     text,
     update,
@@ -501,3 +502,29 @@ class Database:
                 )
                 session.add(keypoint)
             await session.commit()
+
+    async def select_material_name_intro(self, order_id: int) -> dtos.SelectMaterialNameIntroRet | None:
+        async with self._session_factory() as session:
+            cursor = await session.execute(
+                select(MaterialRecord.type, MaterialRecord.name)
+                .join(JobRecord)
+                .where(JobRecord.order_id == order_id)
+                .where(JobRecord.type == enums.JobType.Intro)
+                .limit(1)
+            )
+            if row := cursor.one_or_none():
+                return dtos.SelectMaterialNameIntroRet(type=row[0], name=row[1])
+            else:
+                return None
+
+    async def select_material_name_count(self, order_id: int, name: str) -> int:
+        async with self._session_factory() as session:
+            cursor = await session.execute(
+                select(func.count())
+                .select_from(MaterialRecord)
+                .join(JobRecord)
+                .where(JobRecord.order_id == order_id)
+                .where(MaterialRecord.name == name)
+                .limit(1)
+            )
+            return cursor.scalar_one()
