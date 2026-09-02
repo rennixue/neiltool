@@ -17,6 +17,7 @@ from starlette.staticfiles import StaticFiles
 
 from .agent import Agent
 from .app_utils import InvalidRequest, PydanticJSONResponse, PydanticRoute, extract_path_param, extract_req_body
+from .cache import SimpleCache
 from .daobi_database import DaobiDatabase
 from .database import Database
 from .doc2txt import Doc2txt
@@ -32,6 +33,7 @@ logger = logging.getLogger(__name__)
 
 
 class AppState(TypedDict):
+    cache: SimpleCache[str, Any]
     daobi_database: DaobiDatabase
     database: Database
     operation: Operation
@@ -61,6 +63,7 @@ async def lifespan(app: Starlette) -> AsyncGenerator[AppState]:
         settings.tmp_dir / "operation",
     )
     state: AppState = {
+        "cache": SimpleCache(),
         "daobi_database": daobi_database,
         "database": database,
         "operation": operation,
@@ -189,7 +192,10 @@ async def post_job(request: Request[AppState]) -> _WrapRespRetT:
 
 async def get_job_status(request: Request[AppState]) -> _WrapRespRetT:
     job_id = extract_path_param(request, "job_id", int)
-    dto = await request.state["database"].select_job_status(job_id)
+    dto = request.state["cache"].get(f"get_job_status.{job_id}")
+    if dto is None:
+        dto: dtos.SelectJobStatusRet | None = await request.state["database"].select_job_status(job_id)
+        request.state["cache"].set(f"get_job_status.{job_id}", dto, 20.0)
     if dto is None:
         return WrapResp(code=404, msg="job not found"), 404
     return WrapResp(data=GetJobStatusResp(job_id=dto.job_id, status=dto.status))
@@ -197,7 +203,10 @@ async def get_job_status(request: Request[AppState]) -> _WrapRespRetT:
 
 async def get_job_result(request: Request[AppState]) -> _WrapRespRetT:
     job_id = extract_path_param(request, "job_id", int)
-    dto = await request.state["database"].select_job_result(job_id)
+    dto = request.state["cache"].get(f"get_job_result.{job_id}")
+    if dto is None:
+        dto: dtos.SelectJobResultRet | None = await request.state["database"].select_job_result(job_id)
+        request.state["cache"].set(f"get_job_result.{job_id}", dto, 20.0)
     if dto is None:
         return WrapResp(code=404, msg="job not found"), 404
     if dto.status == enums.JobStatus.Succeed:
