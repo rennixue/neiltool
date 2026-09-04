@@ -144,7 +144,7 @@ class Doc2txt:
     ) -> list[str]:
         paths = [Path(path)]
         try:
-            ext = paths[-1].suffix.removeprefix(".")
+            ext = paths[-1].suffix.removeprefix(".").lower()
             if ext in ("txt", "md"):
                 return [paths[-1].read_text()]
             if ext not in ("pdf", "docx", "doc", "pptx", "ppt", "png", "jpg", "jpeg", "webp"):

@@ -137,7 +137,7 @@ class Operation:
         return ret_files
 
     async def _download_and_parse(self, file: dtos.InsertJobRetFile, tmp_dir: Path) -> list[str]:
-        ext = file.name.rpartition(".")[2]
+        ext = file.name.rpartition(".")[2].lower()
         if ext not in ("pdf", "pptx", "docx"):
             raise OperationError("unsupported file extension")
         download_path = tmp_dir / f"{file.file_id}.{ext}"
